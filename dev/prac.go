@@ -32,6 +32,8 @@ func change() {
 		fmt.Printf("four")
 	case 5:
 		fmt.Printf("five")
+	default:
+		fmt.Printf("Число вне диапазона")
 	}
 }
 func cikl() {
@@ -75,7 +77,8 @@ func main() {
 		massive()
 	case 6:
 		karta()
+	default:
+		fmt.Printf("Такого пункта не существует")
 
 	}
-
 }
