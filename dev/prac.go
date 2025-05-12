@@ -40,7 +40,7 @@ func cikl() {
 	}
 }
 func kogda() {
-	fmt.Printf("while otsutstvuet v go")
+	fmt.Printf("while отсутствует в go")
 
 }
 func massive() {
@@ -50,7 +50,7 @@ func massive() {
 	}
 }
 func karta() {
-	myMap := map[int]string{1: "watermelon", 2: "melon", 3: "grape"}
+	myMap := map[int]string{1: "Арбуз", 2: "Дыня", 3: "Виноград"}
 	fmt.Println(myMap)
 }
 func main() {
@@ -60,7 +60,7 @@ func main() {
 	fmt.Printf("4)while \n")
 	fmt.Printf("5)for+array \n")
 	fmt.Printf("6)map \n")
-	fmt.Printf("vvedite nomer puncta: ")
+	fmt.Printf("Введите номер пункта: ")
 	fmt.Scanf("%d", &i)
 	switch i {
 	case 1:
