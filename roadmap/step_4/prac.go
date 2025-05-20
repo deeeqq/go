@@ -1,4 +1,4 @@
-package step_4
+package main
 
 import (
 	"fmt"
@@ -55,7 +55,7 @@ func karta() {
 	myMap := map[int]string{1: "Арбуз", 2: "Дыня", 3: "Виноград"}
 	fmt.Println(myMap)
 }
-func step4menu() {
+func main() {
 	fmt.Printf("1)if/else \n")
 	fmt.Printf("2)switch \n")
 	fmt.Printf("3)for \n")
