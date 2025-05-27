@@ -13,7 +13,7 @@ func schet(n int) int {
 
 }
 
-func ot0do5rec() {
+func Ot0do5rec() {
 	defer schet1(5)
 	schet(0)
 }
