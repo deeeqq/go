@@ -1,16 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"first-step-project/roadmap/stage6"
 )
 
 func main() {
 
-	s := "gopher"
-	fmt.Printf("Hello and welcome, %s!\n", s)
-
-	for i := 1; i <= 5; i++ {
-		fmt.Println("i =", 100/i)
-
-	}
+	stage6.Imp3()
 }
