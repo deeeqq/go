@@ -1,4 +1,4 @@
-package main
+package stage4
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 var a, i, b, x, c int
 var array, myMap string
 
-func dell() {
+func Dell() {
 	fmt.Printf("Введите число: \n")
 	fmt.Scanf("%d", &a)
 	if a%2 == 0 {
@@ -18,7 +18,7 @@ func dell() {
 
 }
 
-func change() {
+func Change() {
 	fmt.Printf("Введите число от 1 до 5: \n")
 	fmt.Scanf("%d", &i)
 	switch i {
@@ -36,26 +36,26 @@ func change() {
 		fmt.Printf("Число вне диапазона")
 	}
 }
-func cikl() {
+func Cikl() {
 	for b := 1; b <= 10; b++ {
 		fmt.Println("current number is", 0+b)
 	}
 }
-func kogda() {
+func Kogda() {
 	fmt.Printf("while отсутствует в go")
 
 }
-func massive() {
+func Massive() {
 	array := [5]string{"one", "two", "three", "four", "five"}
 	for i, c := range array {
 		fmt.Println(i, c)
 	}
 }
-func karta() {
+func Karta() {
 	myMap := map[int]string{1: "Арбуз", 2: "Дыня", 3: "Виноград"}
 	fmt.Println(myMap)
 }
-func main() {
+func Pracmenu() {
 	fmt.Printf("1)if/else \n")
 	fmt.Printf("2)switch \n")
 	fmt.Printf("3)for \n")
@@ -66,17 +66,17 @@ func main() {
 	fmt.Scanf("%d", &i)
 	switch i {
 	case 1:
-		dell()
+		Dell()
 	case 2:
-		change()
+		Change()
 	case 3:
-		cikl()
+		Cikl()
 	case 4:
-		kogda()
+		Kogda()
 	case 5:
-		massive()
+		Massive()
 	case 6:
-		karta()
+		Karta()
 	default:
 		fmt.Printf("Такого пункта не существует")
 
