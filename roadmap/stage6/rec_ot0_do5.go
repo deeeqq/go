@@ -18,7 +18,7 @@ func Ot0do5rec() {
 	schet(0)
 }
 func schet1(b int) int {
-	if b == 0 {
+	if b == -1 {
 		return b
 	}
 	fmt.Println(b)
