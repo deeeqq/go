@@ -1,4 +1,4 @@
-package main
+package stage5
 
 import (
 	"fmt"
@@ -27,7 +27,7 @@ type Person struct {
 	EmergencyContact EmergencyContact
 }
 
-func main() {
+func Structuretest() {
 
 	var vasilii Person = Person{firstname: "Vasilii", lastname: "Petrov", age: 25, height: 80, IsEmployed: true, Salary: 1000,
 		Address: Address{street: "Pushkina ", city: "Moscow", state: "42", zipcode: 6}, Skills: []string{"junior"},
