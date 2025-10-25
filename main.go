@@ -16,6 +16,7 @@ func main() {
 		fmt.Printf("3)Структуры \n")
 		fmt.Printf("4)Вызов функции \n")
 		fmt.Printf("5)Рекурсия \n")
+		fmt.Printf("6)Интерфейс \n")
 		fmt.Printf("Введите номер пункта: ")
 		fmt.Scanf("%d", &i)
 		switch i {
@@ -29,6 +30,8 @@ func main() {
 			stage6.Imp3()
 		case 5:
 			stage6.Ot0do5rec()
+		case 6:
+			stage6.Interface1()
 		default:
 			fmt.Printf("Такого пункта не существует")
 
