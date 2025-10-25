@@ -274,7 +274,794 @@ Git-flow представляет собой стратегию работы с 
 
 
 # Интерфейсы
+Интерфейсы представляют абстракцию поведения других типов. Интерфейсы позволяют определять функции, которые не привязаны к конкретной реализации. То есть интерфейсы определяют некоторый функционал, но не реализуют его.
 
+Для определения интерфейса применяется ключевое слово interface:
+
+``` go
+type имя_интерфейса interface{
+определения_функций
+}
+``` 
+Например, простейшее определение интерфейса:
+
+``` go
+type vehicle interface{
+move()
+}
+``` 
+Данный интерфейс называется vehicle. Допустим, данный интерфейс представляет некоторое транспортное средство. Он определяет функцию move(), которая не принимает никаких параметров и ничего не возвращает.
+
+Переменные интерфейсов
+Как и в случае с переменными структур мы можем определить переменную, которая представляет тип интерфейса:
+
+``` go
+package main
+
+import "fmt"
+
+type Vehicle interface{
+move()
+}
+
+func main() {
+
+    var tesla Vehicle   // переменная интерфейса
+    fmt.Println(tesla)  // nil
+}
+``` 
+Мы можем даже попробовать вывести переменную интерфейса на консоль, но в данном случае переменная по умолчанию равна nil, так как мы еще не присвоили ей никакого значения.
+
+При этом важно понимать, что интерфейс - это именно абстракция, а не конкретный тип, как int, sring или структуры. К примеру, мы НЕ можем напрямую создать объект интерфейса:
+
+``` go
+var v vehicle = vehicle{}
+``` 
+## Реализация интерфейса
+Реализуем выше определенный интерфейс и для этого определим две структуры:
+``` go
+package main
+
+import "fmt"
+
+type Vehicle interface{
+move()
+}
+
+// структура "Автомобиль"
+type Car struct{ }
+
+// структура "Самолет"
+type Aircraft struct{}
+
+
+func (c Car) move(){
+fmt.Println("Автомобиль едет")
+}
+func (a Aircraft) move(){
+fmt.Println("Самолет летит")
+}
+
+func main() {
+
+    var tesla Vehicle = Car{}
+    var boing Vehicle = Aircraft{}
+    tesla.move()    // Автомобиль едет
+    boing.move()    // Самолет летит
+}
+``` 
+Здесь определены две структуры: Car и Aircraft, которые, предположим, представляют, автомобиль и самолет соответственно. Для каждой из структур определен метод move(), который имитирует перемещение транспортного средства. Этот метод move соответствует функции move интерфейса vehicle по типу параметров и типу возвращаемых значений. Поскольку между методом структур и функций в интерфейсе есть соответствие, то подобные структуры неявно реализуют данный интерфейс.
+
+В Go интерфейс реализуется неявно. Нам не надо специально указывать, что структуры применяют определенный интерфейс, как в некоторых других языках программирования. Для реализации типу данных достаточно реализовать методы, которые определяет интерфейс.
+
+Поскольку структуры Car и Aircraft реализуют интерфейс Vehicle, то мы можем определить переменные данного интерфейса, передав им объекты структур:
+
+``` go
+var tesla Vehicle = Car{}
+var boing Vehicle = Aircraft{}
+``` 
+Где нам могут помочь интерфейсы? Интерфейсы позволяют определить какую-то обобщенную реализацию без привязки к конкретному типу. Например, рассмотрим следующую ситуацию:
+
+``` go
+package main
+
+import "fmt"
+
+type Car struct{ }
+type Aircraft struct{}
+
+
+func (c Car) move(){
+fmt.Println("Автомобиль едет")
+}
+func (a Aircraft) move(){
+fmt.Println("Самолет летит")
+}
+
+func driveCar(c Car){
+c.move()
+}
+func driveAircraft(a Aircraft){
+a.move()
+}
+
+func main() {
+
+    var tesla Car = Car{}
+    var boing Aircraft = Aircraft{}
+    driveCar(tesla)
+    driveAircraft(boing)
+}
+``` 
+Допустим, в данном случае определены две структуры Car и Aircraft, которые представляют автомобиль и самолет. Для каждой из структур определен метод перемещения move(), который условно перемещает транспортное средство. И также определены две функции driveCar() и driveAircraft(), которые принимают соответственно структуры Car и Aircraft и предназначены для вождения этих транспортных средств.
+
+И отчетливо видно, что обе функции driveCar и driveAircraft фактически идентичны, они выполняют один и те же действия, только для разных типов. И было бы неплохо, если можно было бы определить одну обобщенную функцию для разных типов. Особенно учитывая, что у нас может быть и больше транспортных средств - велосипед, корабль и т.д. И для вождения каждого транспортного средства придется определять свой метод, что не очень удобно. И как раз в этом случае можно воспользоваться интерфейсами:
+
+``` go
+package main
+import "fmt"
+
+type Vehicle interface{
+move()
+}
+
+func drive(vehicle Vehicle){
+vehicle.move()
+}
+
+type Car struct{ }
+type Aircraft struct{}
+
+
+func (c Car) move(){
+fmt.Println("Автомобиль едет")
+}
+func (a Aircraft) move(){
+fmt.Println("Самолет летит")
+}
+
+func main() {
+
+    tesla := Car{}
+    boing := Aircraft{}
+    drive(tesla)
+    drive(boing)
+}
+``` 
+Теперь вместо двух функций определена одна общая функция - drive(), которая в качесте параметра принимает значение типа Vehicle. Поскольку этому интерфейсу соответствуют обе структуры Car и Aircraft, то мы можем передавать эти структуры в функцию drive в качесте аргументов.
+
+## Соответствие интерфейсу
+Чтобы тип данных соответствовал интерфейсу, он должен реализовать все методы этого интерфейса. Например:
+
+``` go
+
+// интерфейс перемещения объекта
+type Movable interface{
+moveX(distance int)
+moveY(distance int)
+}
+
+type Rectangle struct{ }
+
+// реализация интерфейса Movable для Rectangle
+func (r Rectangle) moveX(distance int){
+fmt.Println("Перемещаем прямоугольник на ", distance, " по оси X")
+}
+
+// функция перемещения объекта Movable
+func move_object(obj Movable) {
+obj.moveX(10)
+}
+
+func main() {
+
+    rect := Rectangle{} 
+    move_object(rect)  // Перемещаем прямоугольник
+}
+``` 
+Здесь определен интерфейс Movable с двумя методами - moveX (для перемещения по оси X) и moveY (для перемещения по оси Y). Структура Rectangle реализует только один из этих методов. И если мы попробуем передать значение этой структуры в функцию move_object, которая принимает интерфейс Movable:
+
+``` go
+func move_object(obj Movable) {
+obj.moveX(10)
+}
+
+func main() {
+
+    rect := Rectangle{} 
+    move_object(rect)  // Перемещаем прямоугольник
+}
+``` 
+То мы получим ошибку. Так как, чтобы соответствовать интерфейсу Movable структура Rectangle должна реализовать оба метода:
+
+``` go
+package main
+import "fmt"
+
+type Movable interface{
+moveX(distance int)
+moveY(distance int)
+}
+
+type Rectangle struct{ }
+
+
+func (r Rectangle) moveX(distance int){
+fmt.Println("Перемещаем прямоугольник на ", distance, " по оси X")
+}
+// добавляем реализацию метода moveY
+func (r Rectangle) moveY(distance int){
+fmt.Println("Перемещаем прямоугольник на ", distance, " по оси Y")
+}
+
+func move_object(obj Movable) {
+obj.moveX(10)
+}
+
+func main() {
+
+    rect := Rectangle{} 
+    move_object(rect)  // Перемещаем прямоугольник
+}
+``` 
+## Пустой интерфейс
+Интерфейс, который не содержит ни одного метода, называется пустым интерфейсом. Поскольку каждый тип реализует ноль методов, пустой интерфейс может содержать любое значение. В программировании часто встречаются случаи, когда нет уверенности в типе значения. Для обработки таких случаев используются пустые интерфейсы. Функция print является лучшим примером пустых интерфейсов, которые используются для печати любого значения. Например:
+
+``` go
+package main
+
+import "fmt"
+
+// пустой интерфейс
+type Empty interface{ }
+
+func print_value(value Empty){
+fmt.Println(value)
+}
+
+type person struct{
+name string
+}
+
+type account struct{
+id int
+}
+
+func main() {
+
+    tom :person{"Tom"} 
+ 
+    tom_acc := account{125} 
+ 
+    print_value(tom) // {Tom} 
+ 
+    print_value(tom_acc) // {125}
+}
+``` 
+Здесь мы создаем две структуры с двумя полями. Интерфейс Empty не имеет ни одного метода. Метод print_value принимает пустой интерфейс Empty, который может содержать любое значение. Значение такого пустого интерфейса называется его динамическим или конкретным значением.
+
+## Полиморфизм
+Интерфейсы в языке Go позволяют реализовать концепцию полиморфизма - способность принимать многообразные формы: есть несколько типов, которые имеют одни и те же методы интерфейса, но по разному их реализуют. То есть имеется один и тот же функционал и множество форм его реализации, и поведение интерфейса изменяется в соответствии с типом, который реализует интерфейс
+
+В частности, ранее было рассмотрено использование интерфейсов, которым могут соответствовать различные структуры. Например:
+``` go
+package main
+import "fmt"
+
+type Vehicle interface{
+move()
+}
+
+type Car struct{ model string}
+type Aircraft struct{ model string}
+
+
+func (c Car) move(){
+fmt.Println(c.model, "едет")
+}
+func (a Aircraft) move(){
+fmt.Println(a.model, "летит")
+}
+
+func main() {
+
+    tesla := Car{"Tesla"}
+    volvo := Car{"Volvo"}
+    boeing := Aircraft{"Boeing"}
+     
+    vehicles := [...]Vehicle{tesla, volvo, boeing}
+    for _, vehicle := range vehicles{
+        vehicle.move()
+    }
+}
+``` 
+В данном случае определен массив vehicles, который содержит набор структур, которые соответствуют интерфейсу Vehicle, то есть объекты Car и Aircraft. То есть объект Vehicle может принимать различные формы: или структуру Car, или структуру Aircraft. При переборе массива для каждого объекта вызывается метод move. И в зависимости от реального типа структуры динамически определяется, какая именно реализация метода move для какой структуры должна вызываться.
+
+Консольный вывод программы:
+``` go
+Tesla едет
+Volvo едет
+Boeing летит
+``` 
+Интерфейс представляет своего рода контракт, которому должен соответствовать тип данных. Чтобы тип данных соответствовал некоторому интерфейсу, данный тип должен реализовать в виде методов все функции этого интерфейса.
+Реализация интерфейсов для указателей структур
+Последнее обновление: 21.06.2025
+
+## Реализация интерфейсов в структурах распространяется и на указатели на эти структуры. То есть мы можем передавать указатель на структуру там, где требуется интерфейс:
+
+``` go
+package main
+
+import "fmt"
+
+type Reader interface{
+read()
+}
+
+type File struct{
+text string
+}
+
+// реализация интерфейса Reader для File
+func (f File) read(){
+fmt.Println(f.text)
+}
+
+// функция перемещения объекта Movable
+func read_data(data Reader) {
+data.read()
+}
+
+func main() {
+
+    file := File{"Hello METANIT.COM"}
+    // так можно
+    read_data(file)
+ 
+    p_file := &file  // указатель на File
+    // и так можно
+    read_data(p_file)
+}
+``` 
+В данном случае структура File реализует интерфейс чтения данных Reader. Для теста определена функция read_data, которая получает объект Reader. И в эту функцию мы можем передать как значение File, так и указатель на эту структуру.
+
+Тем не менее в Go мы можем реализовать интерфейсы отдельно для указателей на структур:
+
+``` go
+package main
+
+import "fmt"
+
+type Reader interface{
+read()
+}
+
+type File struct{
+text string
+}
+
+// реализация интерфейса Reader для *File
+func (f *File) read(){
+fmt.Println(f.text)
+}
+
+// функция перемещения объекта Movable
+func read_data(data Reader) {
+data.read()
+}
+
+func main() {
+
+    file := File{"Hello METANIT.COM"}
+    p_file := &file  // указатель на File
+ 
+    // указатель можно передать
+    read_data(p_file)
+ 
+    // а так нельзя
+    // read_data(file)   // ! Ошибка
+}
+``` 
+На первый взгляд здесь у нас та же самая программа. Но теперь метод read интерфейса Reader реализуется только для указателя на File (но не для самой структуры File):
+
+``` go
+func (f *File) read(){
+fmt.Println(f.text)
+}
+``` 
+Поэтому мы можем передать в функцию read_data указатель на File:
+
+``` go
+read_data(p_file)
+``` 
+А непосредственно саму структур File передать нельзя:
+
+``` go
+read_data(file)  // ! Ошибка
+``` 
+То есть в данном случае тип File НЕ соответствует интерфейсу Reader, ему соответствует только указатель на File.
+
+Реализация интерфейсов для указателей может быть полезна, когда нам надо изменять поля структуры. Например:
+
+``` go
+package main
+import "fmt"
+
+
+type Writer interface{
+write(string)
+}
+
+type File struct{
+text string
+}
+
+// реализация интерфейса Writer для *File
+func (f File) write(message string){
+f.text = message  // изменяем поле text
+fmt.Println("Запись в файл строки", message)
+}
+
+func main() {
+
+    myFile := File{"Undefined"}
+    myFile.write("Hello World")
+    fmt.Println(myFile.text)  // Undefined
+}
+``` 
+Здесь определен интрефейс Writer с методом write. В реализации этого метода для типа File мы изменяем значение поля text. Но есили мы запустим программу, мы увидим, что поле text не изменилось:
+
+Запись в файл строки Hello World
+Undefined
+Теперь изменим реализацию с типа File на *File (указатель на File):
+
+``` go
+package main
+import "fmt"
+
+
+type Writer interface{
+write(string)
+}
+
+type File struct{
+text string
+}
+
+// реализация интерфейса Writer для *File
+func (f *File) write(message string){
+f.text = message
+fmt.Println("Запись в файл строки", message)
+}
+
+func main() {
+
+    myFile := File{"Undefined"}
+    myFile.write("Hello World")
+    fmt.Println(myFile.text)  // Hello World
+}
+``` 
+И теперь значение поля text будет меняться.
+## Множественная реализация интерфейсов
+### Реализация нескольких интерфейсов
+При этом тип данных необязательно должен реализовать только методы интерфейса, для типа данных можно определить его собственные методы или также реализовать методы других интерфейсов. Например:
+
+``` go
+package main
+import "fmt"
+
+// интерфейс перемещения объекта
+type Movable interface{
+move()
+}
+
+// интерфейс отрисовки объекта
+type Drawable  interface{
+draw()
+}
+
+type Rectangle struct{ }
+
+// реализация интерфейса Movable для Rectangle
+func (r Rectangle) move(){
+fmt.Println("Перемещаем прямоугольник")
+}
+// реализация интерфейса Drawable для Rectangle
+func (r Rectangle) draw(){
+fmt.Println("Рисуем прямоугольник" )
+}
+
+
+func move_object(obj Movable) {
+obj.move()
+}
+
+func draw_object(obj Drawable) {
+obj.draw()
+}
+
+func main() {
+
+    rect := Rectangle{}
+    move_object(rect)  // Перемещаем прямоугольник
+    draw_object(rect)   // Рисуем прямоугольник
+ 
+    // или так
+    var movable1 Movable = rect
+    move_object(movable1) 
+ 
+    var drawable1 Drawable = rect
+    draw_object(drawable1) 
+}
+``` 
+Здесь определены два интерфейса. Интерфейс Movable определяет функционал для перемещения объекта в виде метода move. Второй интерфейс - Drawable определяет метод draw для отрисовки объекта. В данном случае для типа Rectangle реализованы методы обоих интерфейсов - Drawable и Movable. Соответственно мы можем использовать объекты типа Rectangle в качестве объектов Movable (например, передать в функцию move_object) и Drawable (в функции draw_object).
+
+### Вложенные интерфейсы
+Язык Go не поддерживает наследование, но позволяет встраивать одни интерфейсы в другие. Интерфейс может содержать несколько интерфейсов или любую конкретную сигнатуру метода интерфейса. Это некоторым образом работает как наследование, поскольку мы получаем реализацию метода из другого интерфейса. Пример вложенных интерфейсов:
+
+``` go
+type Reader interface{
+read()
+}
+
+type Writer interface{
+write(string)
+}
+
+type ReaderWriter interface{
+Reader
+Writer
+}
+``` 
+В этом случае для соответствия подобному интерфейсу типы данных должны реализовать все его вложенные интерфейсы. Например:
+
+``` go
+package main
+
+import "fmt"
+
+type Reader interface{
+read()
+}
+
+type Writer interface{
+write(string)
+}
+
+type ReaderWriter interface{
+Reader
+Writer
+}
+
+type File struct{
+text string
+}
+
+func (f *File) read(){
+fmt.Println(f.text)
+}
+func (f *File) write(message string){
+f.text = message
+fmt.Println("Запись в файл строки", message)
+}
+
+func main() {
+
+    myFile := &File{}
+    myFile.write("Hello METANIT.COM")
+    myFile.read()
+    myFile.write("Hello World")
+    myFile.read()
+}
+``` 
+В данном случае определено три интерфейса. Причем интерфейс ReaderWriter содержит интерфейсы Reader и Writer. Чтобы структура File соответствовала интерфейсу ReaderWriter, она должна реализовать методы read и write, то есть методы обоих вложенных интерфейсов, что в принципе здесь и сделано.
+
+При этом вместо вложенного интерфейса мы можем прописать сигнатуры его методов:
+
+``` go
+package main
+
+import "fmt"
+
+type Reader interface{
+read()
+}
+
+type Writer interface{
+write(string)
+}
+
+type ReaderWriter interface{
+Reader
+write(string) // неявно встраивается интерфейс Writer
+}
+
+type File struct{
+text string
+}
+
+func (f *File) read(){
+fmt.Println(f.text)
+}
+func (f *File) write(message string){
+f.text = message
+fmt.Println("Запись в файл строки", message)
+}
+
+func writeToStream(writer Writer, text string){
+writer.write(text)
+}
+
+func main() {
+
+    myFile := &File{}
+    writeToStream(myFile, "Hello METANIT.COM")
+    myFile.read()
+}
+``` 
+Теперь интерфейс ReaderWriter вместо интерфейса Writer содержит его метод write(). Тем самым интерфейс Writer также встраивается в ReaderWriter, только неявно:
+
+``` go
+type ReaderWriter interface{
+Reader
+write(string) // неявно встраивается интерфейс Writer
+}
+``` 
+Соответственно если структура реализует этот метод, то она также реализует и интерфейс Writer и ReaderWriter. Поэтому структуру File, которая реализует метод write, можно использовать как значение интерфейса Writer, например, в функции writeToStream:
+
+``` go
+func writeToStream(writer Writer, text string){
+writer.write(text)
+}
+
+func main() {
+
+    myFile := &File{}
+    writeToStream(myFile, "Hello METANIT.COM")
+    myFile.read()
+}
+``` 
+## Проверка типа интерфейса
+### Type assertion (подтверждение типа)
+В языке Go есть механизм type assertion - специальная конструкция, которая проверяет, содержит ли значение интерфейса указанный тип или нет, то есть выполняет подтверждение типа. Если значение интерфейса содержит данный конкретный тип, то возвращается true и значение данного конкретного типа; иначе возвращается false и ноль в качестве значения. Синтаксис подтверждения типа:
+``` go
+t, ok := i.(T)
+``` 
+Конструкция проверяет интерфейс i на наличие конкретного значения типа T. Подтверждение типа возвращает два значения, ok и t. Если интерфейс содержит значение типа T, то t получает это значение типа T, а ok равно true. Если интерфейс не содержит никакого значения типа T, то переменной t будет присвоен ноль, а ok будет равен false.
+
+Рассмотрим применение:
+
+``` go
+package main
+import "fmt"
+
+// интерфейс перемещения объекта
+type Movable interface{
+move()
+}
+
+type Rectangle struct{
+x,          // X-координата левого верхнего угла
+y,          // Y-координата левого верхнего угла
+width,      // ширина
+height int  // высота
+}
+
+type Circle struct{
+x,           // X-координата центра круга
+y,           // Y-координата центра круга
+radius int  // радиус круга
+}
+
+// реализация интерфейса Movable для Rectangle
+func (r Rectangle) move(){
+fmt.Println("Перемещаем прямоугольник")
+}
+
+// реализация интерфейса Movable для Circle
+func (c Circle) move(){
+fmt.Println("Перемещаем круг")
+}
+
+func main() {
+
+    var shape Movable = Rectangle{ x: 20, y: 10, width: 150, height: 100} 
+    //move_object(shape)
+ 
+    // проверяем, реализует ли структура Rectangle интерфейс Movable 
+    value, ok := shape.(Rectangle) 
+    fmt.Println(ok)  // true
+    fmt.Println(value)  // {20 10 150 100}
+}
+``` 
+Здесь мы проверяем, реализован ли интерфейс Movable определенным типом или нет. Мы создаем переменную интерфейса shape. А выражение value, ok := shape.(Rectangle) проверяет, реализован ли интерфейс типом Rectangle или нет. Поскольку здесь интерфейс реализован типом Rectangle, то выражение возвращает true для ,ok и присваивает значение структуры переменной value.
+
+Если мы проверим следующие строки кода, это вызовет ошибку, поскольку sструктура Circle не реализует интерфейсе Movable:
+
+``` go
+var shape Movable = Rectangle{ x: 20, y: 10, width: 150, height: 100}
+
+// проверяем, реализует ли структура Circle интерфейс Movable
+value, ok := shape.(Circle)  // ! Ошибка
+fmt.Println(ok, value)
+``` 
+### Проверка типа и Type switch
+
+Мы можем использовать подряд несколько подтверждений типа, используя конструкцию Type switch. Эта конструкция использует оператор switch, сравнивая тип значения. Для проверки типа применяются операторы case, после которых указывается проверяемый тип, которому должно соответствовать значение интерфейса. Стоит помнить, что если переменной интерфейса не присвовано значение, то оно равно nil, а его тип тоже nil. Формальный синтаксис:
+
+``` go
+switch value := i.(type){
+
+    case T1:        // Действия, если value представляет тип T1
+ 
+    case T2:        // Действия, если value представляет тип T2
+ 
+    .......................................................
+    case TN:        // Действия, если value представляет тип TN
+ 
+    default:    // если ни один из типов в case не соответствуют v
+}
+``` 
+В этой конструкции i представляет интерфейс, type - проверяемый тип, а value — это значение интерфейса. Оператор switch проверяет, представляет ли value тип T1 или T2, и выполняет этот конкретный случай. Он выполняет действия после оператора default, если value не соответствует ни одному из типов после case.
+
+Посмотрим применение конструкции на примере:
+
+``` go
+package main
+import "fmt"
+
+// интерфейс перемещения объекта
+type Movable interface{
+move()
+}
+
+type Rectangle struct{
+x,          // X-координата левого верхнего угла
+y,          // Y-координата левого верхнего угла
+width,      // ширина
+height int  // высота
+}
+
+type Circle struct{
+x,           // X-координата центра круга
+y,           // Y-координата центра круга
+radius int  // радиус круга
+}
+
+type Point struct{
+x,           // X-координата
+y int   // Y-координата
+}
+
+// функция проверки типа
+func check(i interface{}) {
+
+    switch value := i.(type) {
+ 
+        case Rectangle:
+            fmt.Println("Type: Rectangle. Value: ", value)
+ 
+        case Circle:
+            fmt.Println("Type: Circle. Value: ", value)
+ 
+        default:
+            fmt.Println("Type: Undefined")
+    }
+}
+
+func main() {
+
+    check(Rectangle{ x: 20, y: 10, width: 150, height: 100} )
+    check(Circle{ x: 80, y: 50, radius: 70} )
+    check(Point{ x: 20, y: 10} )
+}
+``` 
+Здесь определена вспомогательная функция check(), которая принимает произвольное значение. И тип этого значения последовательно сравнивается в конструкции switch с типами Rectangle и Circle. В итоге мы получим следующий консольный вывод:
+``` go
+Type: Rectangle. Value:  {20 10 150 100}
+Type: Circle. Value:  {80 50 70}
+Type: Undefined
+``` 
 # Generic
 
 # Указатели
